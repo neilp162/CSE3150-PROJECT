@@ -97,6 +97,8 @@ export default function Page() {
   const [lastCsv, setLastCsv] = useState("");
   const [simulateTarget, setSimulateTarget] = useState(null);
   const [freeResult, setFreeResult] = useState(null);
+  const [mallocFn, setMallocFn] = useState(null);
+  const [freeFn, setFreeFn] = useState(null);
   const [wasmModule, setWasmModule] = useState(null);
 
   const relationshipsName = useMemo(() => {
@@ -149,13 +151,15 @@ export default function Page() {
         setWasmModule(module);
         setSimulateTarget(() =>
           module.cwrap("simulate_target", "number", [
-            "string",
-            "string",
-            "string",
+            "number",
+            "number",
+            "number",
             "number",
           ])
         );
         setFreeResult(() => module.cwrap("free_result", null, ["number"]));
+        setMallocFn(() => module.cwrap("malloc", "number", ["number"]));
+        setFreeFn(() => module.cwrap("free", null, ["number"]));
         setWasmStatus("WASM ready");
         setWasmReady(true);
       } catch (error) {
@@ -213,7 +217,7 @@ export default function Page() {
 
   async function handleSubmit(event) {
     event.preventDefault();
-    if (!simulateTarget || !freeResult || !wasmModule) {
+    if (!simulateTarget || !freeResult || !mallocFn || !freeFn || !wasmModule) {
       return;
     }
 
@@ -265,14 +269,30 @@ export default function Page() {
           ? await readFileText(rovFile)
           : defaultInputsRef.current.rov;
 
+      const allocations = [];
+      const allocateUtf8 = (value) => {
+        const size = wasmModule.lengthBytesUTF8(value) + 1;
+        const pointer = mallocFn(size);
+        wasmModule.stringToUTF8(value, pointer, size);
+        allocations.push(pointer);
+        return pointer;
+      };
+
+      const relationshipsPointer = allocateUtf8(relationshipsText);
+      const announcementsPointer = allocateUtf8(announcementsText);
+      const rovPointer = allocateUtf8(rovText);
+
       const pointer = simulateTarget(
-        relationshipsText,
-        announcementsText,
-        rovText,
+        relationshipsPointer,
+        announcementsPointer,
+        rovPointer,
         target
       );
       const csvText = wasmModule.UTF8ToString(pointer);
       freeResult(pointer);
+      for (const allocated of allocations) {
+        freeFn(allocated);
+      }
 
       if (csvText.startsWith("ERROR:")) {
         throw new Error(csvText.slice("ERROR:".length).trim());

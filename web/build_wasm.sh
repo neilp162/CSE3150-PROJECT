@@ -26,7 +26,7 @@ emcc "$ROOT/web/src/simulator_wasm.cpp" \
     -s ENVIRONMENT=web,node \
     -s ALLOW_MEMORY_GROWTH=1 \
     -s EXPORTED_FUNCTIONS='["_simulate_target","_free_result","_malloc","_free"]' \
-    -s EXPORTED_RUNTIME_METHODS='["cwrap","UTF8ToString"]' \
+    -s EXPORTED_RUNTIME_METHODS='["cwrap","UTF8ToString","stringToUTF8","lengthBytesUTF8"]' \
     -o "$ROOT/web/public/simulator.js"
 
 echo "Built web/public/simulator.js and web/public/simulator.wasm"
