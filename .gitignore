@@ -1,0 +1,44 @@
+# Build outputs
+bgp_simulator
+ribs.csv
+build/
+*.o
+*.out
+web-server.log
+*.pid
+
+# Archives
+*.zip
+*.tar
+*.gz
+
+# Editor / OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+*:Zone.Identifier
+.codex
+
+# Local course assets not needed in the published repo
+bench/
+cse3150_course_project.pdf
+
+# VS Code
+.vscode/
+
+# JetBrains
+.idea/
+
+# Next.js frontend
+web/node_modules/
+web/.next/
+web/out/
+
+# CMake, if added later
+CMakeFiles/
+CMakeCache.txt
+cmake-build-*/
+compile_commands.json
+Makefile.old
