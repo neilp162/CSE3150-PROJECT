@@ -160,4 +160,6 @@ For Vercel deployment:
 The generated `web/public/simulator.js` and `web/public/simulator.wasm` files
 are committed, so Vercel does not need an Emscripten toolchain during deploys.
 
-Live deployment URL: https://cse-3150-project.vercel.app
+Live deployment URL: https://neilpatelcse.space/
+
+Vercel preview/backup URL: https://cse-3150-project.vercel.app
