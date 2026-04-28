@@ -2,7 +2,6 @@
   color-scheme: light;
   --bg-top: #f3f5f2;
   --bg-bottom: #eef2f7;
-  --shell: rgba(255, 255, 255, 0.82);
   --panel: rgba(255, 255, 255, 0.94);
   --panel-strong: #ffffff;
   --ink: #17212a;
@@ -60,15 +59,12 @@ input {
 }
 
 .topbar {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
+  display: block;
   margin-bottom: 22px;
 }
 
 .brand-block {
-  max-width: 760px;
+  max-width: 720px;
 }
 
 .eyebrow {
@@ -93,68 +89,15 @@ h1 {
   line-height: 1.55;
 }
 
-.feature-strip {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 16px;
-}
-
-.surface-badge,
-.status-caption,
-.table-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0;
-}
-
-.surface-badge {
-  min-height: 30px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.88);
-  padding: 0 12px;
-  color: #34414b;
-}
-
-.status-cluster {
-  display: grid;
-  justify-items: end;
-  gap: 10px;
-}
-
-.status-pill {
-  min-width: 142px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 10px 14px;
-  background: var(--panel-strong);
-  color: var(--amber);
-  font-size: 0.9rem;
-  font-weight: 800;
-  text-align: center;
-  box-shadow: var(--shadow-soft);
-}
-
-.status-pill.ready {
-  color: var(--teal);
-  border-color: rgba(15, 118, 110, 0.22);
-  background: rgba(255, 255, 255, 0.96);
-}
-
-.status-pill.error {
-  color: var(--rose);
-  border-color: rgba(180, 35, 24, 0.2);
-}
-
-.status-caption {
-  min-height: 28px;
-  padding: 0 10px;
-  background: rgba(255, 255, 255, 0.72);
+.engine-note {
+  margin: 14px 0 0;
   color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.engine-note.bad {
+  color: var(--rose);
 }
 
 .workspace {
@@ -324,11 +267,6 @@ button {
     border-color 140ms ease, background 140ms ease;
 }
 
-button span {
-  display: inline-block;
-  margin-right: 4px;
-}
-
 button:hover:not(:disabled) {
   transform: translateY(-1px);
 }
@@ -482,9 +420,15 @@ td:nth-child(2),
 }
 
 .table-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 28px;
   padding: 0 10px;
   border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
 }
 
 .relationship-origin {
@@ -537,14 +481,6 @@ tr:last-child td {
   .app-shell {
     width: min(100vw - 20px, 1240px);
     padding: 18px 0 22px;
-  }
-
-  .topbar {
-    display: grid;
-  }
-
-  .status-cluster {
-    justify-items: start;
   }
 
   .metric-strip,

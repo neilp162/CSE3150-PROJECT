@@ -1,10 +1,9 @@
-# BGP WASM Website
+# BGP Website
 
-This folder is the Website/WASM extra credit frontend. It is a static-exported
-Next.js app intended for Vercel hosting. The page runs the WebAssembly-compiled
-C++ simulator entirely in the browser and lets a user upload announcements plus
-a target ASN. By default, it also ships with a built-in CAIDA graph snapshot
-and a built-in ROV ASN file, while still allowing optional overrides.
+This folder contains the browser version of the simulator. The site runs the
+compiled C++ code in the browser and lets a user upload announcements and enter
+a target ASN. Default relationship and ROV data are included, and both can be
+overridden if needed.
 
 ## Local Development
 
@@ -30,10 +29,10 @@ npm run build
 
 This produces a static export in `web/out/`.
 
-## Rebuild WASM
+## Rebuild Browser Files
 
 The generated `public/simulator.js` and `public/simulator.wasm` files are
-committed so Vercel can build without an Emscripten toolchain. To rebuild them:
+committed so Vercel can deploy without Emscripten installed. To rebuild them:
 
 ```bash
 bash web/build_wasm.sh
@@ -44,6 +43,5 @@ source `/tmp/emsdk/emsdk_env.sh`.
 
 ## Vercel
 
-Use Vercel's GitHub import flow and set the repo root directory to `web`.
-Vercel will auto-detect Next.js and run the standard `npm install` + `npm run build`
-pipeline on the Hobby plan.
+Use Vercel's GitHub import flow and set the root directory to `web`. The default
+Next.js build settings work as-is.

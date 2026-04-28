@@ -121,10 +121,10 @@ export default function Page() {
     rov: null,
   });
 
-  const [wasmStatus, setWasmStatus] = useState("WASM loading");
+  const [wasmStatus, setWasmStatus] = useState("loading");
   const [wasmReady, setWasmReady] = useState(false);
   const [message, setMessage] = useState({
-    text: "Load inputs or use the demo data.",
+    text: "Choose an announcements file or load the demo data.",
     kind: "",
   });
   const [relationshipsFile, setRelationshipsFile] = useState(null);
@@ -145,27 +145,23 @@ export default function Page() {
 
   const relationshipsName = useMemo(() => {
     if (demoLoaded) {
-      return "Demo graph loaded";
+      return "Demo graph";
     }
-    return relationshipsFile
-      ? relationshipsFile.name
-      : "Using built-in CAIDA graph";
+    return relationshipsFile ? relationshipsFile.name : "Using default graph";
   }, [demoLoaded, relationshipsFile]);
 
   const announcementsName = useMemo(() => {
     if (demoLoaded) {
-      return "Demo announcements loaded";
+      return "Demo announcements";
     }
-    return announcementsFile
-      ? announcementsFile.name
-      : "Upload announcements CSV";
+    return announcementsFile ? announcementsFile.name : "No file selected";
   }, [demoLoaded, announcementsFile]);
 
   const rovName = useMemo(() => {
     if (demoLoaded) {
-      return "Demo ROV set loaded";
+      return "Demo ROV list";
     }
-    return rovFile ? rovFile.name : "Using built-in ROV set";
+    return rovFile ? rovFile.name : "Using default ROV list";
   }, [demoLoaded, rovFile]);
 
   const canRun =
@@ -202,13 +198,13 @@ export default function Page() {
         setFreeResult(() => module.cwrap("free_result", null, ["number"]));
         setMallocFn(() => module.cwrap("malloc", "number", ["number"]));
         setFreeFn(() => module.cwrap("free", null, ["number"]));
-        setWasmStatus("WASM ready");
+        setWasmStatus("ready");
         setWasmReady(true);
       } catch (error) {
         if (cancelled) {
           return;
         }
-        setWasmStatus("WASM error");
+        setWasmStatus("error");
         setMessage({
           text: error?.message || String(error),
           kind: "bad",
@@ -244,7 +240,10 @@ export default function Page() {
     setRovFile(null);
     setTargetAsn("");
     resetResults();
-    setMessage({ text: "Load inputs or use the demo data.", kind: "" });
+    setMessage({
+      text: "Choose an announcements file or load the demo data.",
+      kind: "",
+    });
 
     if (relInputRef.current) {
       relInputRef.current.value = "";
@@ -272,7 +271,7 @@ export default function Page() {
       return;
     }
 
-    setMessage({ text: "Running simulation...", kind: "" });
+    setMessage({ text: "Running...", kind: "" });
 
     try {
       const started = performance.now();
@@ -281,7 +280,7 @@ export default function Page() {
           "/default-relationships.txt"
         ).then((response) => {
           if (!response.ok) {
-            throw new Error("Failed to load built-in CAIDA graph.");
+            throw new Error("Failed to load default relationship data.");
           }
           return response.text();
         });
@@ -290,7 +289,7 @@ export default function Page() {
         defaultInputsRef.current.rov = await fetch("/default-rov-asns.csv").then(
           (response) => {
             if (!response.ok) {
-              throw new Error("Failed to load built-in ROV ASN file.");
+              throw new Error("Failed to load default ROV data.");
             }
             return response.text();
           }
@@ -348,7 +347,7 @@ export default function Page() {
       setElapsedTime(`${Math.round(elapsed).toLocaleString()} ms`);
       setTargetLabel(String(target));
       setMessage({
-        text: `Simulation complete for AS${target}.`,
+        text: `Finished for AS${target}.`,
         kind: "good",
       });
     } catch (error) {
@@ -380,28 +379,19 @@ export default function Page() {
     <main className="app-shell">
       <header className="topbar">
         <div className="brand-block">
-          <p className="eyebrow">CSE 3150 Extra Credit</p>
-          <h1>BGP WASM Simulator</h1>
+          <p className="eyebrow">BGP Route Viewer</p>
+          <h1>BGP Simulator</h1>
           <p className="intro-copy">
-            Inspect the announcements visible at a single ASN with a
-            browser-only WebAssembly run.
+            Upload announcements, enter a target ASN, and inspect the routes
+            visible at that AS.
           </p>
-          <div className="feature-strip" aria-label="Site capabilities">
-            <span className="surface-badge">Client-side</span>
-            <span className="surface-badge">WASM</span>
-            <span className="surface-badge">CSV in / CSV out</span>
-          </div>
-        </div>
-
-        <div className="status-cluster">
-          <div
-            className={`status-pill ${
-              wasmReady ? "ready" : wasmStatus.includes("error") ? "error" : ""
-            }`}
-          >
-            {wasmStatus}
-          </div>
-          <span className="status-caption">Custom domain live</span>
+          {wasmStatus !== "ready" ? (
+            <p className={`engine-note ${wasmStatus === "error" ? "bad" : ""}`}>
+              {wasmStatus === "loading"
+                ? "Loading the simulation engine..."
+                : "There was a problem loading the simulation engine."}
+            </p>
+          ) : null}
         </div>
       </header>
 
@@ -417,7 +407,7 @@ export default function Page() {
           <div className="field-grid">
             <UploadField
               label="Relationships"
-              detail="Optional override"
+              detail="Optional"
               fileName={relationshipsName}
               buttonLabel="Choose file"
               inputRef={relInputRef}
@@ -443,7 +433,7 @@ export default function Page() {
 
             <UploadField
               label="ROV ASNs"
-              detail="Optional override"
+              detail="Optional"
               fileName={rovName}
               buttonLabel="Choose file"
               inputRef={rovInputRef}
@@ -469,25 +459,20 @@ export default function Page() {
                 value={targetAsn}
                 onChange={(event) => setTargetAsn(event.target.value)}
               />
-              <small className="field-detail">
-                Routes visible at this AS
-              </small>
+              <small className="field-detail">Routes visible at this AS</small>
             </label>
           </div>
 
           <p className="helper-note">
-            Uploading announcements and a target ASN is enough. The app uses a
-            built-in CAIDA graph snapshot and built-in ROV set unless you
-            override them.
+            In the usual case, you only need an announcements file and a target
+            ASN. Default relationship and ROV data are already included.
           </p>
 
           <div className="action-row">
             <button className="secondary" type="button" onClick={handleDemo}>
-              <span aria-hidden="true">◎</span>
-              Demo
+              Load Demo
             </button>
             <button className="primary" type="submit" disabled={!canRun}>
-              <span aria-hidden="true">▶</span>
               Run
             </button>
             <button
@@ -496,12 +481,10 @@ export default function Page() {
               onClick={handleDownload}
               disabled={!lastCsv}
             >
-              <span aria-hidden="true">↓</span>
-              CSV
+              Download CSV
             </button>
             <button className="ghost" type="button" onClick={handleClear}>
-              <span aria-hidden="true">×</span>
-              Clear
+              Reset
             </button>
           </div>
         </form>

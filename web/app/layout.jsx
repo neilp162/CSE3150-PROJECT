@@ -1,8 +1,8 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "BGP WASM Simulator",
-  description: "Client-side BGP simulator running in WebAssembly.",
+  title: "BGP Simulator",
+  description: "Upload announcements and inspect routes at a chosen ASN.",
 };
 
 export default function RootLayout({ children }) {
