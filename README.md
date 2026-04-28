@@ -1,6 +1,6 @@
-# CSE 3150 Course Project: BGP Simulator
+# CSE 3150 Course Project - BGP Simulator
 
-This project builds a C++ BGP simulator that reads CAIDA AS relationship data,
+this project builds a C++ BGP simulator that reads CAIDA AS relationship data,
 seeds BGP announcements, applies ROV filtering, propagates routes using the
 assignment's valley-free model, and writes the resulting local RIBs to
 `ribs.csv` in the current directory.
