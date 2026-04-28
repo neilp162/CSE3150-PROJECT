@@ -70,6 +70,48 @@ async function readFileText(file) {
   return file.text();
 }
 
+function UploadField({
+  label,
+  detail,
+  fileName,
+  buttonLabel,
+  inputRef,
+  accept,
+  onChange,
+}) {
+  return (
+    <section className="upload-field">
+      <div className="field-head">
+        <div>
+          <span className="field-label">{label}</span>
+          <small className="field-detail">{detail}</small>
+        </div>
+      </div>
+
+      <input
+        ref={inputRef}
+        className="sr-only"
+        type="file"
+        accept={accept}
+        onChange={onChange}
+      />
+
+      <div className="file-row">
+        <button
+          className="file-trigger"
+          type="button"
+          onClick={() => inputRef.current?.click()}
+        >
+          {buttonLabel}
+        </button>
+        <div className="file-summary">
+          <strong>{fileName}</strong>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function Page() {
   const relInputRef = useRef(null);
   const annInputRef = useRef(null);
@@ -337,66 +379,88 @@ export default function Page() {
   return (
     <main className="app-shell">
       <header className="topbar">
-        <div>
+        <div className="brand-block">
           <p className="eyebrow">CSE 3150 Extra Credit</p>
           <h1>BGP WASM Simulator</h1>
+          <p className="intro-copy">
+            Inspect the announcements visible at a single ASN with a
+            browser-only WebAssembly run.
+          </p>
+          <div className="feature-strip" aria-label="Site capabilities">
+            <span className="surface-badge">Client-side</span>
+            <span className="surface-badge">WASM</span>
+            <span className="surface-badge">CSV in / CSV out</span>
+          </div>
         </div>
-        <div
-          className={`status-pill ${
-            wasmReady ? "ready" : wasmStatus.includes("error") ? "error" : ""
-          }`}
-        >
-          {wasmStatus}
+
+        <div className="status-cluster">
+          <div
+            className={`status-pill ${
+              wasmReady ? "ready" : wasmStatus.includes("error") ? "error" : ""
+            }`}
+          >
+            {wasmStatus}
+          </div>
+          <span className="status-caption">Custom domain live</span>
         </div>
       </header>
 
       <section className="workspace" aria-label="BGP simulator workspace">
         <form className="control-panel" onSubmit={handleSubmit}>
+          <div className="panel-header">
+            <div>
+              <p className="panel-kicker">Inputs</p>
+              <h2>Simulation setup</h2>
+            </div>
+          </div>
+
           <div className="field-grid">
-            <label className="file-field">
-              <span>Relationships</span>
-              <input
-                ref={relInputRef}
-                type="file"
-                accept=".txt,.csv,text/plain"
-                onChange={(event) => {
-                  setDemoLoaded(false);
-                  setRelationshipsFile(event.target.files?.[0] ?? null);
-                }}
-              />
-              <small>{relationshipsName}</small>
-            </label>
+            <UploadField
+              label="Relationships"
+              detail="Optional override"
+              fileName={relationshipsName}
+              buttonLabel="Choose file"
+              inputRef={relInputRef}
+              accept=".txt,.csv,text/plain"
+              onChange={(event) => {
+                setDemoLoaded(false);
+                setRelationshipsFile(event.target.files?.[0] ?? null);
+              }}
+            />
 
-            <label className="file-field">
-              <span>Announcements</span>
-              <input
-                ref={annInputRef}
-                type="file"
-                accept=".csv,text/csv,text/plain"
-                onChange={(event) => {
-                  setDemoLoaded(false);
-                  setAnnouncementsFile(event.target.files?.[0] ?? null);
-                }}
-              />
-              <small>{announcementsName}</small>
-            </label>
+            <UploadField
+              label="Announcements"
+              detail="Required"
+              fileName={announcementsName}
+              buttonLabel="Choose CSV"
+              inputRef={annInputRef}
+              accept=".csv,text/csv,text/plain"
+              onChange={(event) => {
+                setDemoLoaded(false);
+                setAnnouncementsFile(event.target.files?.[0] ?? null);
+              }}
+            />
 
-            <label className="file-field">
-              <span>ROV ASNs</span>
-              <input
-                ref={rovInputRef}
-                type="file"
-                accept=".csv,.txt,text/csv,text/plain"
-                onChange={(event) => {
-                  setDemoLoaded(false);
-                  setRovFile(event.target.files?.[0] ?? null);
-                }}
-              />
-              <small>{rovName}</small>
-            </label>
+            <UploadField
+              label="ROV ASNs"
+              detail="Optional override"
+              fileName={rovName}
+              buttonLabel="Choose file"
+              inputRef={rovInputRef}
+              accept=".csv,.txt,text/csv,text/plain"
+              onChange={(event) => {
+                setDemoLoaded(false);
+                setRovFile(event.target.files?.[0] ?? null);
+              }}
+            />
 
             <label className="number-field">
-              <span>Target ASN</span>
+              <div className="field-head">
+                <div>
+                  <span className="field-label">Target ASN</span>
+                  <small className="field-detail">Required</small>
+                </div>
+              </div>
               <input
                 type="number"
                 min="0"
@@ -405,7 +469,9 @@ export default function Page() {
                 value={targetAsn}
                 onChange={(event) => setTargetAsn(event.target.value)}
               />
-              <small>Routes visible at this AS</small>
+              <small className="field-detail">
+                Routes visible at this AS
+              </small>
             </label>
           </div>
 
@@ -441,6 +507,13 @@ export default function Page() {
         </form>
 
         <section className="output-panel" aria-live="polite">
+          <div className="panel-header">
+            <div>
+              <p className="panel-kicker">Results</p>
+              <h2>Routes at the selected ASN</h2>
+            </div>
+          </div>
+
           <div className="metric-strip">
             <div>
               <span className="metric-label">Routes</span>
@@ -479,11 +552,27 @@ export default function Page() {
                 ) : (
                   rows.map((row) => (
                     <tr key={`${row.prefix}-${row.asPath}`}>
-                      <td>{row.prefix}</td>
+                      <td className="prefix-cell">{row.prefix}</td>
                       <td>{row.asPath}</td>
-                      <td>{row.nextHop}</td>
-                      <td>{row.receivedFrom}</td>
-                      <td>{row.rovInvalid}</td>
+                      <td className="mono-cell">{row.nextHop}</td>
+                      <td>
+                        <span
+                          className={`table-badge relationship-${row.receivedFrom}`}
+                        >
+                          {row.receivedFrom}
+                        </span>
+                      </td>
+                      <td>
+                        <span
+                          className={`table-badge ${
+                            row.rovInvalid === "true"
+                              ? "invalid-true"
+                              : "invalid-false"
+                          }`}
+                        >
+                          {row.rovInvalid}
+                        </span>
+                      </td>
                     </tr>
                   ))
                 )}
